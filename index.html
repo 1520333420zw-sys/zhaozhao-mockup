@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZHAOZHAO 手机效果图模板</title>
+<style>
+body{margin:0;background:#f4f1ec;color:#293141;font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center}
+main{max-width:750px;margin:28px auto;padding:0 16px}
+h1{font-size:23px;font-weight:600;letter-spacing:.07em}
+p{color:#697181;line-height:1.6}label,.btn{display:inline-block;margin:6px;padding:11px 17px;border-radius:12px;background:#293a57;color:white;cursor:pointer;border:0;font-size:14px}
+input[type=file]{display:none}button.secondary{background:#e1e5e9;color:#26334c}
+canvas{width:min(100%,480px);height:auto;display:block;margin:20px auto;border-radius:8px;box-shadow:0 12px 32px #2222}
+small{color:#6b7280}
+</style></head><body><main><h1>ZHAOZHAO · PHONE MOCKUP</h1>
+<p>上传你自己的完整壁纸，选择锁屏或主屏，导出 PNG。<br>模板只裁切适配屏幕，不会重新绘制猫咪的脸。</p>
+<label for="upload">① 选择壁纸图片</label><input id="upload" type="file" accept="image/*">
+<button class="btn secondary" id="lock">② 锁屏</button><button class="btn secondary" id="home">② 主屏</button>
+<button class="btn" id="save">③ 保存效果图 PNG</button>
+<canvas id="canvas" width="900" height="1200"></canvas>
+<small>纯本地处理，图片不会上传服务器。推荐上传已经完成的竖版手机壁纸。</small>
+</main><script>
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+let artwork=null,mode='lock';
+function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function fill(x,y,w,h,r,color){ctx.fillStyle=color;rounded(x,y,w,h,r);ctx.fill()}
+function txt(s,x,y,size,color='#fff',weight='400'){ctx.fillStyle=color;ctx.font=weight+' '+size+'px -apple-system,Arial,sans-serif';ctx.textAlign='center';ctx.fillText(s,x,y)}
+function draw(){
+ const W=900,H=1200;ctx.clearRect(0,0,W,H);ctx.fillStyle='#f4f1ec';ctx.fillRect(0,0,W,H);
+ // soft background shadow
+ ctx.save();ctx.shadowColor='#101b3050';ctx.shadowBlur=35;ctx.shadowOffsetY=15;fill(209,56,482,1087,78,'#24272c');ctx.restore();
+ fill(207,51,486,1090,78,'#23262c');fill(219,64,462,1064,65,'#111c2d');
+ ctx.save();rounded(219,64,462,1064,65);ctx.clip();
+ if(artwork){
+  // preserve original artwork pixels; center crop only, never regenerate
+  const iw=artwork.naturalWidth,ih=artwork.naturalHeight,sw=462,sh=1064;
+  const scale=Math.max(sw/iw,sh/ih),dw=iw*scale,dh=ih*scale;
+  ctx.drawImage(artwork,219+(sw-dw)/2,64+(sh-dh)/2,dw,dh);
+ }else{
+  fill(219,64,462,1064,0,'#273b5a');
+  txt('YOUR WALLPAPER',450,600,24,'#cdd6e4');
+  txt('在上方上传你的壁纸',450,640,18,'#b1bed0');
+ }
+ // legibility overlays at top
+ const gradient=ctx.createLinearGradient(0,64,0,310);gradient.addColorStop(0,'#0006');gradient.addColorStop(1,'#0000');
+ ctx.fillStyle=gradient;ctx.fillRect(219,64,462,246);
+ fill(369,77,162,36,19,'#08090d');
+ if(mode==='lock'){
+  txt('10月12日 星期一',450,225,23,'#fff');
+  txt('13:00',450,338,105,'#fff','200');
+  fill(254,1028,55,55,28,'#15243cbb');txt('⌁',281,1065,30);
+  fill(591,1028,55,55,28,'#15243cbb');txt('◎',618,1065,29);
+ }else{
+  txt('13:00',270,110,21);
+  const labels=['日历','照片','备忘录','相机','设置','文件','微信','音乐'];
+  for(let i=0;i<8;i++){
+   const x=258+(i%4)*104,y=190+Math.floor(i/4)*112;
+   fill(x,y,72,72,17,['#ede8dc','#c8d1c4','#e7ddd0','#cad3e0'][i%4]);
+   txt(['12','✿','≡','◎','⚙','▣','●','♫'][i],x+36,y+48,35,'#556279');
+   txt(labels[i],x+36,y+95,16,'#fff');
+  }
+  fill(245,1011,410,92,30,'#d9e1e9aa');
+  ['☎','●','◉','♫'].forEach((s,i)=>{fill(265+i*99,1026,63,63,16,'#f2eee8');txt(s,296+i*99,1068,31,'#62718a')});
+ }
+ txt('▮▮▮  Wi-Fi  67%',602,110,15,'#fff');
+ fill(395,1107,110,5,3,'#fff');
+ ctx.restore();
+ // device border and camera bump
+ ctx.strokeStyle='#a7a9aa';ctx.lineWidth=4;rounded(207,51,486,1090,78);ctx.stroke();
+ ctx.fillStyle='#a5a6a7';ctx.fillRect(202,235,5,76);ctx.fillRect(693,282,5,93);
+ txt('ZHAOZHAO  /  PREVIEW',450,1176,17,'#66707e');
+}
+document.getElementById('upload').addEventListener('change',e=>{
+ const file=e.target.files[0];if(!file)return;
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{if(artwork?.src?.startsWith('blob:'))URL.revokeObjectURL(artwork.src);artwork=img;draw()};
+ img.src=url;
+});
+document.getElementById('lock').onclick=()=>{mode='lock';draw()};
+document.getElementById('home').onclick=()=>{mode='home';draw()};
+document.getElementById('save').onclick=()=>{
+ const a=document.createElement('a');a.download='ZHAOZHAO_'+mode+'_mockup.png';a.href=canvas.toDataURL('image/png');a.click();
+};draw();
+</script></body></html>
