@@ -13,7 +13,7 @@ small{color:#6b7280}
 <p>上传你自己的完整壁纸，选择锁屏或主屏，导出 PNG。<br>模板只裁切适配屏幕，不会重新绘制猫咪的脸。</p>
 <label for="upload">① 选择壁纸图片</label><input id="upload" type="file" accept="image/*">
 <button class="btn secondary" id="lock">② 锁屏</button><button class="btn secondary" id="home">② 主屏</button>
-<button class="btn" id="save">③ 保存效果图 PNG</button>
+<button class="btn" id="save">③ 保存效果图 PNG</button><button class="btn" id="duo">④ 双手机展示图（3:4）</button>
 <canvas id="canvas" width="900" height="1200"></canvas>
 <small>纯本地处理，图片不会上传服务器。推荐上传已经完成的竖版手机壁纸。</small>
 </main><script>
@@ -75,6 +75,25 @@ document.getElementById('upload').addEventListener('change',e=>{
 });
 document.getElementById('lock').onclick=()=>{mode='lock';draw()};
 document.getElementById('home').onclick=()=>{mode='home';draw()};
+document.getElementById('duo').onclick=()=>{
+ const previous=mode;
+ mode='lock';draw();
+ const lock=document.createElement('canvas');lock.width=900;lock.height=1200;lock.getContext('2d').drawImage(canvas,0,0);
+ mode='home';draw();
+ const home=document.createElement('canvas');home.width=900;home.height=1200;home.getContext('2d').drawImage(canvas,0,0);
+ mode=previous;draw();
+ const out=document.createElement('canvas');out.width=1080;out.height=1440;
+ const o=out.getContext('2d');o.fillStyle='#f4f1ec';o.fillRect(0,0,1080,1440);
+ o.fillStyle='#283954';o.font='600 31px -apple-system,Arial,sans-serif';o.textAlign='center';
+ o.fillText('ZHAOZHAO  ·  WALLPAPER',540,125);
+ // Crop only surrounding preview whitespace, never alter original wallpaper pixels.
+ o.drawImage(lock,200,42,500,1120,60,195,460,1030);
+ o.drawImage(home,200,42,500,1120,560,195,460,1030);
+ o.fillStyle='#697181';o.font='22px -apple-system,Arial,sans-serif';
+ o.fillText('LOCK SCREEN',290,1280);o.fillText('HOME SCREEN',790,1280);
+ o.fillText('a little cat, a little happiness',540,1360);
+ const a=document.createElement('a');a.download='ZHAOZHAO_double_3x4.png';a.href=out.toDataURL('image/png');a.click();
+};
 document.getElementById('save').onclick=()=>{
  const a=document.createElement('a');a.download='ZHAOZHAO_'+mode+'_mockup.png';a.href=canvas.toDataURL('image/png');a.click();
 };draw();
