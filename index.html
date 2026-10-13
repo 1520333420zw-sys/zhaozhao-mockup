@@ -1,80 +1,27 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZHAOZHAO 壁纸展示图</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:#24334b;font:15px -apple-system,BlinkMacSystemFont,sans-serif;text-align:center}main{max-width:850px;margin:auto;padding:22px 15px 38px}h1{font-size:22px;letter-spacing:.1em;font-weight:600}p{color:#69778a;line-height:1.7}.toolbar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}button,.pick{background:#293c5c;color:#fff;border:0;border-radius:11px;padding:12px 16px;font:inherit;cursor:pointer}.muted{background:#e6e9ed;color:#283a57}input[type=file]{display:none}.settings{background:#ffffff;border-radius:15px;padding:12px}.settings label{display:flex;align-items:center;gap:7px;font-size:13px;color:#34445b}.settings input[type=text]{width:145px;border:1px solid #d8dfe8;padding:8px;border-radius:8px}.settings input[type=color]{width:35px;height:32px;border:0;background:transparent}.settings input[type=range]{width:92px}.settings select{border:1px solid #d8dfe8;border-radius:7px;padding:7px}canvas{width:min(100%,650px);height:auto;display:block;margin:18px auto;box-shadow:0 7px 25px #17253c12}small{color:#718095}</style></head><body><main>
-<h1>ZHAOZHAO · WALLPAPER</h1><p>iPhone 锁屏样式 · 单屏 / 双屏展示<br>上传原图即可替换，不会重新绘制猫咪。</p>
-<div class="toolbar"><label class="pick" for="upload">① 上传壁纸</label><input id="upload" type="file" accept="image/*"><button id="pair">② 双屏效果图</button><button id="lock" class="muted">锁屏</button><button id="home" class="muted">主屏</button><button id="save">③ 保存 PNG</button></div>
-<div class="toolbar settings"><label>时间 <strong>11:06（固定）</strong></label><label>日期 <input id="date" type="text" value="Friday, November 6"></label><label>运营商 <input id="carrier" type="text" value="中国电信"></label><label>天气 <input id="weather" type="text" value="☀ 32°  晴"></label><label><input id="weatherOn" type="checkbox" checked>显示天气</label><label><input id="statusOn" type="checkbox" checked>显示状态栏</label><label><input id="buttonsOn" type="checkbox" checked>显示底部按钮</label><label>时间颜色 <input id="timeColor" type="color" value="#f0e9e6"></label><label>背景颜色 <input id="bgColor" type="color" value="#fafafa"></label><label>图标颜色 <input id="iconColor" type="color" value="#7185a6"></label><label>时间粗细 <input id="weight" type="range" min="400" max="900" step="100" value="900"></label><label>时间大小 <input id="fontSize" type="range" min="75" max="125" value="110"></label><label>字体 <select id="font"><option value="sans">iPhone 风格</option><option value="narrow">修长字体</option><option value="serif">衬线字体</option></select></label></div><canvas id="preview" width="1080" height="1440"></canvas><small>尺寸 1080 × 1440（3:4）· 本地处理，不上传图片到服务器。</small></main>
-<script>
-const cv=document.getElementById('preview'),ctx=cv.getContext('2d');let art=null,mode='pair';
-const C={bg:'#fafafa',screen:'#2b4062',overlay:'#7185a6',white:'#f0e9e6'};const v=id=>document.getElementById(id).value;
-function rr(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
-function box(c,x,y,w,h,r,color){c.fillStyle=color;rr(c,x,y,w,h,r);c.fill()}
-function text(c,t,x,y,s,color='#f0e9e6',weight='400'){c.fillStyle=color;c.textAlign='center';c.font=weight+' '+s+'px -apple-system,Arial,sans-serif';c.fillText(t,x,y)}
-function shortcut(c,cx,cy,kind){
- c.save();c.translate(cx,cy);c.fillStyle='#fff';c.strokeStyle='#fff';c.lineWidth=2.5;c.lineCap='round';c.lineJoin='round';
- if(kind==='flash'){c.beginPath();c.moveTo(-9,-17);c.lineTo(9,-17);c.lineTo(7,-8);c.lineTo(4,-4);c.lineTo(4,16);c.quadraticCurveTo(0,20,-4,16);c.lineTo(-4,-4);c.lineTo(-7,-8);c.closePath();c.fill();c.fillStyle='#28313d';c.fillRect(-5,-13,10,3);}
- else {c.beginPath();c.roundRect(-18,-10,36,26,5);c.fill();c.fillRect(-9,-15,12,7);c.fillStyle='#28313d';c.beginPath();c.arc(0,3,9,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.beginPath();c.arc(0,3,6,0,Math.PI*2);c.stroke();}
- c.restore();
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZHAOZHAO 壁纸预览</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#26354e;font:15px -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}main{max-width:960px;margin:auto;padding:24px 16px 50px}h1{text-align:center;font-size:22px;letter-spacing:.07em}p{text-align:center;color:#67758a;line-height:1.6}.panel{background:white;padding:17px;border-radius:18px;margin:15px auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}.panel label{display:flex;align-items:center;gap:7px}.panel input[type=text]{width:100px;font-size:19px;padding:9px;border:1px solid #cbd4e2;border-radius:9px}.panel input[type=file]{max-width:210px;font-size:12px}.panel button{padding:11px 16px;border:0;border-radius:10px;background:#2b466e;color:white;font:inherit}.panel button.secondary{background:#e5ebf4;color:#26354e}.panel input[type=range]{width:95px}.view{display:flex;flex-wrap:wrap;justify-content:center;gap:18px}.frame{width:min(100%,345px);text-align:center}.frame canvas{display:block;width:100%;height:auto;background:#e1e8f5;border-radius:22px;box-shadow:0 6px 25px #20324c22}.frame h2{font-size:15px;font-weight:500}.hint{font-size:12px;color:#79849a;text-align:center}</style></head><body><main>
+<h1>ZHAOZHAO · 壁纸效果图</h1><p>全新简洁版：使用你提供的两张锁屏 / 主屏参考图。<br>先分别导入图片，再修改锁屏时间，其他设计保持原样。</p>
+<div class="panel"><label>锁屏参考图 <input id="lockfile" type="file" accept="image/*"></label><label>主屏参考图 <input id="homefile" type="file" accept="image/*"></label></div>
+<div class="panel"><label>时间 <input id="clock" type="text" value="11:06" maxlength="5" inputmode="numeric"></label><label>字体大小 <input id="size" type="range" min="120" max="260" value="195"></label><label>字体颜色 <input id="color" type="color" value="#c4ffff"></label><label>字重 <input id="weight" type="range" min="300" max="900" step="100" value="500"></label></div>
+<div class="panel"><button id="saveLock">保存锁屏 PNG</button><button id="saveHome">保存主屏 PNG</button><button id="savePair" class="secondary">保存双屏展示图 3:4</button></div>
+<div class="view"><div class="frame"><h2>锁屏预览</h2><canvas id="lock" width="710" height="1536"></canvas></div><div class="frame"><h2>主屏预览</h2><canvas id="home" width="915" height="1822"></canvas></div></div>
+<p class="hint">图片只在当前设备浏览器处理，不会上传服务器。首次需要选择你发来的两张参考图。</p></main><script>
+const $=id=>document.getElementById(id),lc=$('lock'),hc=$('home'),L=lc.getContext('2d'),H=hc.getContext('2d');let lockImg=null,homeImg=null;
+function cover(c,img,w,h){let r=Math.max(w/img.width,h/img.height),iw=img.width*r,ih=img.height*r;c.drawImage(img,(w-iw)/2,(h-ih)/2,iw,ih)}
+function drawPlaceholder(c,w,h,label){let g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#43c7ed');g.addColorStop(.48,'#71a4f6');g.addColorStop(1,'#9992fb');c.fillStyle=g;c.fillRect(0,0,w,h);c.fillStyle='#ffffffbb';c.textAlign='center';c.font='24px sans-serif';c.fillText(label,w/2,h/2)}
+function drawLock(){const w=710,h=1536;L.clearRect(0,0,w,h);if(lockImg)cover(L,lockImg,w,h);else drawPlaceholder(L,w,h,'请上传锁屏参考图');
+ if(!lockImg)return;
+ // Replace the time only. Rebuild the original smooth gradient underneath using neighboring pixels.
+ const top=218,bottom=400;const a=L.getImageData(8,top,1,1).data,b=L.getImageData(8,bottom,1,1).data;
+ const g=L.createLinearGradient(0,top,0,bottom);g.addColorStop(0,'rgb('+a[0]+','+a[1]+','+a[2]+')');g.addColorStop(1,'rgb('+b[0]+','+b[1]+','+b[2]+')');L.fillStyle=g;L.fillRect(70,top,565,bottom-top);
+ L.save();L.fillStyle=$('color').value;L.textAlign='center';L.textBaseline='middle';L.font=$('weight').value+' '+$('size').value+'px -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif';L.fillText($('clock').value,355,308,585);L.restore();
 }
-function statusIcons(c){
- c.save();c.fillStyle='#fff';c.strokeStyle='#fff';c.lineCap='round';
- // Cellular signal: four ascending solid bars
- [7,11,15,19].forEach((h,i)=>box(c,329+i*9,45-h,6,h,2,'#fff'));
- // Wi-Fi: curved radiating bands and center dot
- c.lineWidth=3.7;c.beginPath();c.arc(389,40,15,Math.PI*1.23,Math.PI*1.77);c.stroke();
- c.beginPath();c.arc(389,40,9,Math.PI*1.23,Math.PI*1.77);c.stroke();
- c.beginPath();c.arc(389,41,2.6,0,Math.PI*2);c.fill();
- // Battery: outlined rounded container, terminal and fill
- c.lineWidth=2.5;c.beginPath();c.roundRect(408,25,32,17,5);c.stroke();
- box(c,411,28,25,11,3,'#fff');box(c,442,30,3,8,2,'#fff');
- c.restore();
-}
-function fixedClock(c,cx,baseline,color,size){
- // Dedicated vector lettering, fixed 11:06. Rounded bold strokes, tall and condensed.
- const scale=size/190;c.save();c.translate(cx-188*scale,baseline-178*scale);c.scale(scale,scale);
- c.strokeStyle=color;c.fillStyle=color;c.lineWidth=18;c.lineCap='round';c.lineJoin='round';
- const stroke=pts=>{c.beginPath();pts(c);c.stroke()};
- // digit 1: angled top and long straight stem
- stroke(p=>{p.moveTo(25,37);p.lineTo(46,14);p.lineTo(46,169)});
- stroke(p=>{p.moveTo(105,37);p.lineTo(126,14);p.lineTo(126,169)});
- // colon
- for(const y of [72,128]){c.beginPath();c.arc(166,y,8,0,Math.PI*2);c.fill()}
- // zero: narrow capsule, thick round sides
- c.beginPath();c.roundRect(202,9,66,164,33);c.stroke();
- // six: curved upper hook into lower loop
- stroke(p=>{p.moveTo(361,20);p.bezierCurveTo(334,3,301,26,300,75);p.lineTo(300,127)});
- c.beginPath();c.ellipse(330,128,31,42,0,0,Math.PI*2);c.stroke();
- c.restore();
-}
-function phone(c,x,y,w,h,type){
- const k=w/460; c.save();c.translate(x,y);c.scale(k,k);const ox=x,oy=y;x=0;y=0;w=460;h=h/k;
- c.save();rr(c,x,y,w,h,46);c.clip();box(c,x,y,w,h,0,C.screen);
- if(art){const scale=Math.max(w/art.width,h/art.height),dw=art.width*scale,dh=art.height*scale;c.drawImage(art,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
- else {text(c,'YOUR WALLPAPER',x+w/2,y+h*.59,20,'#d8deea');text(c,'上传壁纸后预览',x+w/2,y+h*.63,17,'#d8deea')}
- if(type==='lock'){
-  // Transparent UI overlay, preserving wallpaper artwork unchanged
-  if(document.getElementById('statusOn').checked){text(c,v('carrier'),100,48,20,'#fff','600');statusIcons(c);}
-  text(c,v('date'),x+w/2,y+135,24,v('timeColor'),'600');
-  fixedClock(c,x+w/2,y+290,v('timeColor'),Number(v('fontSize'))*1.7);
-  if(document.getElementById('weatherOn').checked){c.textAlign='left';c.fillStyle='#fff';c.font='500 24px -apple-system,Arial';c.fillText(v('weather'),34,h-226);c.font='17px -apple-system,Arial';c.fillText('最高 32° 最低 23°',34,h-197);}
-  if(document.getElementById('buttonsOn').checked){for(const [bx,kind] of [[84,'flash'],[376,'camera']]){c.beginPath();c.arc(bx,h-99,34,0,Math.PI*2);c.fillStyle='#222b3688';c.fill();shortcut(c,bx,h-99,kind)}}
-  box(c,172,h-18,116,5,3,'#fff');
- }else{
-  // Muted, unlabeled placeholder app icons, like reference image
-  box(c,x+29,y+92,177,177,25,v('iconColor')+'99');
-  for(let i=0;i<4;i++){const col=i%2,row=Math.floor(i/2);box(c,x+238+col*100,y+93+row*115,72,72,18,v('iconColor')+'99')}
-  for(let i=0;i<8;i++){const col=i%4,row=Math.floor(i/4);box(c,x+29+col*99,y+354+row*117,73,73,17,v('iconColor')+'99')}
-  box(c,x+16,y+h-126,w-32,106,28,v('iconColor')+'66');
-  for(let i=0;i<4;i++)box(c,x+35+i*98,y+h-104,74,74,16,v('iconColor')+'88');
- }
- c.restore();c.restore();
-}
-function draw(){
- ctx.fillStyle=v('bgColor');ctx.fillRect(0,0,1080,1440);
- if(mode==='pair'){phone(ctx,104,80,410,930,'lock');phone(ctx,566,80,410,930,'home')}
- else phone(ctx,185,0,710,1440,mode);
-}
-document.getElementById('upload').onchange=e=>{const file=e.target.files?.[0];if(!file)return;const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{art=img;draw();URL.revokeObjectURL(url)};img.src=url};
-for(const key of ['pair','lock','home'])document.getElementById(key).onclick=()=>{mode=key;draw()};
-document.getElementById('save').onclick=()=>{const a=document.createElement('a');a.download='ZHAOZHAO_'+mode+'_3x4.png';a.href=cv.toDataURL('image/png');a.click()};
-document.querySelectorAll('.settings input,.settings select').forEach(el=>el.addEventListener('input',draw));draw();
+function drawHome(){H.clearRect(0,0,915,1822);if(homeImg)cover(H,homeImg,915,1822);else drawPlaceholder(H,915,1822,'请上传主屏参考图')}
+function load(input,cb){input.addEventListener('change',()=>{const f=input.files[0];if(!f)return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{cb(im);URL.revokeObjectURL(url)};im.src=url})}
+load($('lockfile'),im=>{lockImg=im;drawLock()});load($('homefile'),im=>{homeImg=im;drawHome()});
+['clock','size','color','weight'].forEach(id=>$(id).addEventListener('input',drawLock));
+function save(c,name){const a=document.createElement('a');a.download=name;a.href=c.toDataURL('image/png');a.click()}
+$('saveLock').onclick=()=>save(lc,'ZHAOZHAO_lock.png');$('saveHome').onclick=()=>save(hc,'ZHAOZHAO_home.png');
+$('savePair').onclick=()=>{const c=document.createElement('canvas');c.width=1080;c.height=1440;const x=c.getContext('2d');x.fillStyle='#fafafa';x.fillRect(0,0,1080,1440);x.save();x.beginPath();x.roundRect(56,95,455,1050,46);x.clip();x.drawImage(lc,56,95,455,1050);x.restore();x.save();x.beginPath();x.roundRect(569,95,455,1050,46);x.clip();x.drawImage(hc,569,95,455,1050);x.restore();save(c,'ZHAOZHAO_pair_3x4.png')};
+drawLock();drawHome();
 </script></body></html>
