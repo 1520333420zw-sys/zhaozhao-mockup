@@ -15,6 +15,36 @@ function shortcut(c,cx,cy,kind){
  else {c.beginPath();c.roundRect(-18,-10,36,26,5);c.fill();c.fillRect(-9,-15,12,7);c.fillStyle='#28313d';c.beginPath();c.arc(0,3,9,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.beginPath();c.arc(0,3,6,0,Math.PI*2);c.stroke();}
  c.restore();
 }
+function statusIcons(c){
+ c.save();c.fillStyle='#fff';c.strokeStyle='#fff';c.lineCap='round';
+ // Cellular signal: four ascending solid bars
+ [7,11,15,19].forEach((h,i)=>box(c,329+i*9,45-h,6,h,2,'#fff'));
+ // Wi-Fi: curved radiating bands and center dot
+ c.lineWidth=3.7;c.beginPath();c.arc(389,40,15,Math.PI*1.23,Math.PI*1.77);c.stroke();
+ c.beginPath();c.arc(389,40,9,Math.PI*1.23,Math.PI*1.77);c.stroke();
+ c.beginPath();c.arc(389,41,2.6,0,Math.PI*2);c.fill();
+ // Battery: outlined rounded container, terminal and fill
+ c.lineWidth=2.5;c.beginPath();c.roundRect(408,25,32,17,5);c.stroke();
+ box(c,411,28,25,11,3,'#fff');box(c,442,30,3,8,2,'#fff');
+ c.restore();
+}
+function fixedClock(c,cx,baseline,color,size){
+ // Dedicated vector lettering, fixed 11:06. Rounded bold strokes, tall and condensed.
+ const scale=size/190;c.save();c.translate(cx-188*scale,baseline-178*scale);c.scale(scale,scale);
+ c.strokeStyle=color;c.fillStyle=color;c.lineWidth=18;c.lineCap='round';c.lineJoin='round';
+ const stroke=pts=>{c.beginPath();pts(c);c.stroke()};
+ // digit 1: angled top and long straight stem
+ stroke(p=>{p.moveTo(25,37);p.lineTo(46,14);p.lineTo(46,169)});
+ stroke(p=>{p.moveTo(105,37);p.lineTo(126,14);p.lineTo(126,169)});
+ // colon
+ for(const y of [72,128]){c.beginPath();c.arc(166,y,8,0,Math.PI*2);c.fill()}
+ // zero: narrow capsule, thick round sides
+ c.beginPath();c.roundRect(202,9,66,164,33);c.stroke();
+ // six: curved upper hook into lower loop
+ stroke(p=>{p.moveTo(361,20);p.bezierCurveTo(334,3,301,26,300,75);p.lineTo(300,127)});
+ c.beginPath();c.ellipse(330,128,31,42,0,0,Math.PI*2);c.stroke();
+ c.restore();
+}
 function phone(c,x,y,w,h,type){
  const k=w/460; c.save();c.translate(x,y);c.scale(k,k);const ox=x,oy=y;x=0;y=0;w=460;h=h/k;
  c.save();rr(c,x,y,w,h,46);c.clip();box(c,x,y,w,h,0,C.screen);
@@ -22,9 +52,9 @@ function phone(c,x,y,w,h,type){
  else {text(c,'YOUR WALLPAPER',x+w/2,y+h*.59,20,'#d8deea');text(c,'上传壁纸后预览',x+w/2,y+h*.63,17,'#d8deea')}
  if(type==='lock'){
   // Transparent UI overlay, preserving wallpaper artwork unchanged
-  if(document.getElementById('statusOn').checked){text(c,v('carrier'),100,48,20,'#fff','600');text(c,'▂▄▆  ◕  ▰',370,48,22,'#fff','600');}
+  if(document.getElementById('statusOn').checked){text(c,v('carrier'),100,48,20,'#fff','600');statusIcons(c);}
   text(c,v('date'),x+w/2,y+135,24,v('timeColor'),'600');
-  c.save();c.fillStyle=v('timeColor');c.textAlign='center';const fam=v('font')==='narrow'?'Arial Narrow,Helvetica Neue,Arial,sans-serif':v('font')==='serif'?'Georgia,serif':'-apple-system,Arial,sans-serif';c.font='900 '+(Number(v('fontSize'))*1.65)+'px '+fam;c.fillText('11:06',x+w/2,y+285,425);c.restore();
+  fixedClock(c,x+w/2,y+290,v('timeColor'),Number(v('fontSize'))*1.7);
   if(document.getElementById('weatherOn').checked){c.textAlign='left';c.fillStyle='#fff';c.font='500 24px -apple-system,Arial';c.fillText(v('weather'),34,h-226);c.font='17px -apple-system,Arial';c.fillText('最高 32° 最低 23°',34,h-197);}
   if(document.getElementById('buttonsOn').checked){for(const [bx,kind] of [[84,'flash'],[376,'camera']]){c.beginPath();c.arc(bx,h-99,34,0,Math.PI*2);c.fillStyle='#222b3688';c.fill();shortcut(c,bx,h-99,kind)}}
   box(c,172,h-18,116,5,3,'#fff');
