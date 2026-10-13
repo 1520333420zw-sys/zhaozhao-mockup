@@ -2,13 +2,19 @@
 <style>*{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:#24334b;font:15px -apple-system,BlinkMacSystemFont,sans-serif;text-align:center}main{max-width:850px;margin:auto;padding:22px 15px 38px}h1{font-size:22px;letter-spacing:.1em;font-weight:600}p{color:#69778a;line-height:1.7}.toolbar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}button,.pick{background:#293c5c;color:#fff;border:0;border-radius:11px;padding:12px 16px;font:inherit;cursor:pointer}.muted{background:#e6e9ed;color:#283a57}input[type=file]{display:none}.settings{background:#ffffff;border-radius:15px;padding:12px}.settings label{display:flex;align-items:center;gap:7px;font-size:13px;color:#34445b}.settings input[type=text]{width:145px;border:1px solid #d8dfe8;padding:8px;border-radius:8px}.settings input[type=color]{width:35px;height:32px;border:0;background:transparent}.settings input[type=range]{width:92px}.settings select{border:1px solid #d8dfe8;border-radius:7px;padding:7px}canvas{width:min(100%,650px);height:auto;display:block;margin:18px auto;box-shadow:0 7px 25px #17253c12}small{color:#718095}</style></head><body><main>
 <h1>ZHAOZHAO · WALLPAPER</h1><p>iPhone 锁屏样式 · 单屏 / 双屏展示<br>上传原图即可替换，不会重新绘制猫咪。</p>
 <div class="toolbar"><label class="pick" for="upload">① 上传壁纸</label><input id="upload" type="file" accept="image/*"><button id="pair">② 双屏效果图</button><button id="lock" class="muted">锁屏</button><button id="home" class="muted">主屏</button><button id="save">③ 保存 PNG</button></div>
-<div class="toolbar settings"><label>时间 <input id="clock" type="text" value="11:06" maxlength="5"></label><label>日期 <input id="date" type="text" value="Friday, November 6"></label><label>天气 <input id="weather" type="text" value="☀ 32°  晴"></label><label><input id="weatherOn" type="checkbox" checked>显示天气</label><label><input id="statusOn" type="checkbox" checked>显示状态栏</label><label><input id="buttonsOn" type="checkbox" checked>显示底部按钮</label><label>时间颜色 <input id="timeColor" type="color" value="#f0e9e6"></label><label>背景颜色 <input id="bgColor" type="color" value="#fafafa"></label><label>图标颜色 <input id="iconColor" type="color" value="#7185a6"></label><label>时间粗细 <input id="weight" type="range" min="400" max="900" step="100" value="700"></label><label>时间大小 <input id="fontSize" type="range" min="75" max="125" value="110"></label><label>字体 <select id="font"><option value="sans">iPhone 风格</option><option value="narrow">修长字体</option><option value="serif">衬线字体</option></select></label></div><canvas id="preview" width="1080" height="1440"></canvas><small>尺寸 1080 × 1440（3:4）· 本地处理，不上传图片到服务器。</small></main>
+<div class="toolbar settings"><label>时间 <input id="clock" type="text" value="11:06" maxlength="5"></label><label>日期 <input id="date" type="text" value="Friday, November 6"></label><label>天气 <input id="weather" type="text" value="☀ 32°  晴"></label><label><input id="weatherOn" type="checkbox" checked>显示天气</label><label><input id="statusOn" type="checkbox" checked>显示状态栏</label><label><input id="buttonsOn" type="checkbox" checked>显示底部按钮</label><label>时间颜色 <input id="timeColor" type="color" value="#f0e9e6"></label><label>背景颜色 <input id="bgColor" type="color" value="#fafafa"></label><label>图标颜色 <input id="iconColor" type="color" value="#7185a6"></label><label>时间粗细 <input id="weight" type="range" min="400" max="900" step="100" value="800"></label><label>时间大小 <input id="fontSize" type="range" min="75" max="125" value="110"></label><label>字体 <select id="font"><option value="sans">iPhone 风格</option><option value="narrow">修长字体</option><option value="serif">衬线字体</option></select></label></div><canvas id="preview" width="1080" height="1440"></canvas><small>尺寸 1080 × 1440（3:4）· 本地处理，不上传图片到服务器。</small></main>
 <script>
 const cv=document.getElementById('preview'),ctx=cv.getContext('2d');let art=null,mode='pair';
 const C={bg:'#fafafa',screen:'#2b4062',overlay:'#7185a6',white:'#f0e9e6'};const v=id=>document.getElementById(id).value;
 function rr(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
 function box(c,x,y,w,h,r,color){c.fillStyle=color;rr(c,x,y,w,h,r);c.fill()}
 function text(c,t,x,y,s,color='#f0e9e6',weight='400'){c.fillStyle=color;c.textAlign='center';c.font=weight+' '+s+'px -apple-system,Arial,sans-serif';c.fillText(t,x,y)}
+function shortcut(c,cx,cy,kind){
+ c.save();c.translate(cx,cy);c.fillStyle='#ffffff';c.strokeStyle='#ffffff';c.lineWidth=3;c.lineJoin='round';c.lineCap='round';
+ if(kind==='flash'){c.beginPath();c.moveTo(-9,-17);c.lineTo(9,-17);c.lineTo(7,-8);c.lineTo(4,-4);c.lineTo(4,16);c.quadraticCurveTo(0,20,-4,16);c.lineTo(-4,-4);c.lineTo(-7,-8);c.closePath();c.fill();c.fillStyle='#243044';c.fillRect(-5,-13,10,3);}
+ else {c.beginPath();c.roundRect(-18,-10,36,26,5);c.fill();c.fillRect(-9,-15,12,7);c.fillStyle='#243044';c.beginPath();c.arc(0,3,9,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(0,3,6,0,Math.PI*2);c.stroke();}
+ c.restore();
+}
 function phone(c,x,y,w,h,type){
  const k=w/460; c.save();c.translate(x,y);c.scale(k,k);const ox=x,oy=y;x=0;y=0;w=460;h=h/k;
  c.save();rr(c,x,y,w,h,46);c.clip();box(c,x,y,w,h,0,C.screen);
@@ -16,11 +22,11 @@ function phone(c,x,y,w,h,type){
  else {text(c,'YOUR WALLPAPER',x+w/2,y+h*.59,20,'#d8deea');text(c,'上传壁纸后预览',x+w/2,y+h*.63,17,'#d8deea')}
  if(type==='lock'){
   // Transparent UI overlay, preserving wallpaper artwork unchanged
-  if(document.getElementById('statusOn').checked){text(c,'▂▄▆  ◕  ▰',370,48,22,'#fff','600');}
+  if(document.getElementById('statusOn').checked){text(c,'▂▄▆   ◕   ▰',372,48,21,'#fff','700');}
   text(c,v('date'),x+w/2,y+135,24,v('timeColor'),'600');
-  c.save();c.fillStyle=v('timeColor');c.textAlign='center';const fam=v('font')==='narrow'?'Arial Narrow,Helvetica Neue,Arial,sans-serif':v('font')==='serif'?'Georgia,serif':'-apple-system,BlinkMacSystemFont,Helvetica Neue,Arial,sans-serif';c.font='800 '+(Number(v('fontSize'))*1.8)+'px '+fam;c.fillText(v('clock'),x+w/2,y+285,425);c.restore();
+  c.save();c.fillStyle=v('timeColor');c.textAlign='center';const fam=v('font')==='narrow'?'Arial Narrow,Helvetica Neue,Arial,sans-serif':v('font')==='serif'?'Georgia,serif':'-apple-system,BlinkMacSystemFont,Helvetica Neue,Arial,sans-serif';c.font=v('weight')+' '+(Number(v('fontSize'))*1.95)+'px '+fam;c.save();c.translate(x+w/2,y+287);c.scale(.82,1.10);c.fillText(v('clock'),0,0,510);c.restore();c.restore();
   if(document.getElementById('weatherOn').checked){c.textAlign='left';c.fillStyle='#fff';c.font='500 24px -apple-system,Arial';c.fillText(v('weather'),34,h-226);c.font='17px -apple-system,Arial';c.fillText('最高 32° 最低 23°',34,h-197);}
-  if(document.getElementById('buttonsOn').checked){for(const [bx,sym] of [[84,'◉'],[376,'◎']]){c.beginPath();c.arc(bx,h-99,34,0,Math.PI*2);c.fillStyle='#222b3688';c.fill();text(c,sym,bx,h-88,30,'#fff','600')}}
+  if(document.getElementById('buttonsOn').checked){for(const [bx,kind] of [[84,'flash'],[376,'camera']]){c.beginPath();c.arc(bx,h-99,34,0,Math.PI*2);c.fillStyle='#222b3699';c.fill();shortcut(c,bx,h-99,kind)}}
   box(c,172,h-18,116,5,3,'#fff');
  }else{
   // Muted, unlabeled placeholder app icons, like reference image
